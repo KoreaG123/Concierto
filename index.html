@@ -252,15 +252,70 @@
                 transform: scale(1.2);
             }
         }
+
+        .start-button {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 25px 50px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(255, 105, 180, 0.6);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            animation: pulse 1.5s ease infinite;
+        }
+
+        .start-button:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 15px 50px rgba(255, 105, 180, 0.8);
+        }
+
+        .start-button:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .floating-heart {
+            position: fixed;
+            font-size: 2em;
+            color: #ff69b4;
+            pointer-events: none;
+            animation: floatUp 3s ease-out forwards;
+            z-index: 999;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Botón de inicio -->
+    <button class="start-button" id="startButton">💖 DAR CLIC 💖</button>
+
     <!-- Audio de fondo -->
     <audio id="birthdayMusic" loop>
         <source src="music.mp3" type="audio/mpeg">
     </audio>
 
-    <div class="container">
+    <div class="container" id="mainContent" style="display: none;">
         <h1>🎉 ¡Feliz Cumpleaños Cielo! 🎉</h1>
         
         <div class="message">
@@ -283,6 +338,60 @@
     </div>
 
     <script>
+        // Crear corazones que suben desde abajo
+        function createFloatingHearts() {
+            const heartSymbols = ['💖', '💗', '💓', '💕', '💝', '❤️', '💜'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'floating-heart';
+                    heart.innerHTML = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.bottom = '-50px';
+                    heart.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    heart.style.fontSize = (Math.random() * 1.5 + 1.5) + 'em';
+                    document.body.appendChild(heart);
+                    
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+
+        // Función para iniciar la experiencia
+        function startExperience() {
+            const button = document.getElementById('startButton');
+            const content = document.getElementById('mainContent');
+            const music = document.getElementById('birthdayMusic');
+            
+            // Crear corazones flotantes
+            createFloatingHearts();
+            
+            // Reproducir música
+            music.volume = 0.3;
+            music.play().catch(error => {
+                console.log('Error al reproducir música:', error);
+            });
+            
+            // Ocultar botón y mostrar contenido
+            setTimeout(() => {
+                button.classList.add('hidden');
+                content.style.display = 'block';
+                
+                // Iniciar animaciones
+                createConfetti();
+                createBalloons();
+                createHearts();
+            }, 1500);
+        }
+
+        // Event listener para el botón
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('startButton');
+            startButton.addEventListener('click', startExperience);
+        });
+
         // Crear confeti
         function createConfetti() {
             const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#ff69b4', '#95e1d3'];
@@ -333,25 +442,8 @@
             });
         }
 
-        // Inicializar animaciones
-        window.addEventListener('load', () => {
-            createConfetti();
-            createBalloons();
-            createHearts();
-            
-            // Reproducir música automáticamente
-            const music = document.getElementById('birthdayMusic');
-            music.volume = 0.3; // Volumen al 30%
-            
-            // Intentar reproducir automáticamente
-            music.play().catch(error => {
-                // Si el navegador bloquea la reproducción automática,
-                // esperamos al primer clic del usuario
-                document.body.addEventListener('click', () => {
-                    music.play();
-                }, { once: true });
-            });
-        });
+        // La función startExperience ya inicializa todo, 
+        // así que removemos el listener de window load anterior
     </script>
 </body>
 </html>
